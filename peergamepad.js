@@ -1,7 +1,5 @@
 /*import 'https://cdn.jsdelivr.net/npm/peerjs@0.3.20/dist/peer.min.js';
 */
-const PEER_SERVER_KEY = 'lwjd5qra8257b9';
-
 class PeerGamepad {
   constructor(opts) {
     opts = opts || {};
@@ -12,7 +10,7 @@ class PeerGamepad {
     
     this.connection = undefined;
     
-    this.peer = new Peer({key: PEER_SERVER_KEY});
+    this.peer = new Peer();
     
     this.onConnect = opts.onConnect;
     
@@ -78,7 +76,7 @@ class PeerCommander {
     
     this.connections = [];
     
-    this.peer = new Peer({key: PEER_SERVER_KEY});
+    this.peer = new Peer();
     
     this.url = opts.url;
     

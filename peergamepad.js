@@ -112,7 +112,7 @@ class PeerCommander {
       return;
     }
     
-    let textCode = (this.url || "") + "?id=" + this.peerID;
+    let textCode = (this.url || "https://1florki.github.io/mobilecontroller/controller/index.html") + "?id=" + this.peerID;
     let code = new QRCode(element, textCode);
     console.log(code._el.children[1]);
     console.log(textCode)

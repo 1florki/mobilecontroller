@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>mobile controller demo</title>
+
+<body>
+  
+   <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/peerjs@0.3.20/dist/peer.min.js"></script>
+   <script src="./../peergamepad.js"></script>
+   <div id="qrcode"></div>
+  
+  <div id="data"></div>
+  
+  <script>
+    let s = new PeerCommander({ onData: () => { s.showData() } });
+  </script>
+</body>

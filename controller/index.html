@@ -64,6 +64,7 @@
        
        master = new PeerGamepad({onConnect: () => {
          gamepad = new TouchGamepad({
+           alwaysSend: true,
            elements: [{
              color: 0xff0000,
              move: false,
@@ -147,7 +148,7 @@
        let dt = PIXI.Ticker.shared.elapsedMS;
        
        if(gamepad) {
-         if(gamepad.hasChanged()) {
+         if(gamepad.hasChanged() || gamepad.alwaysSend) {
            master.sendData(gamepad.getData());
          }
        }

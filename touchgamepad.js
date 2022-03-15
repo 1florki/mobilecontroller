@@ -21,6 +21,8 @@ class TouchGamepad {
         }
       }
     }
+    
+    this.alwaysSend = opts.alwaysSend;
   }
   addGraphics(container) {
     for (let e of this.elements) {

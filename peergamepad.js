@@ -14,8 +14,10 @@ class PeerGamepad {
     
     this.onConnect = opts.onConnect;
     
+    this.verbose = opts.verbose;
+    
     this.peer.on('open', id => { 
-      console.log("connected to key server with id " + id);
+      print("connected to key server with id " + id);
       this.peerID = id;
       if(opts.connect) {
         this.connectTo(opts.connect);
@@ -25,6 +27,13 @@ class PeerGamepad {
       }
     });
   }
+  
+  print(text) {
+    if(this.verbose) {
+      console.log(text);
+    }
+  }
+  
   
   sendData(data) {
     if(this.connection == undefined || data == undefined) return;
@@ -37,19 +46,19 @@ class PeerGamepad {
   }
   
   connectTo(peerID) {
-    console.log("connecting to " + peerID);
+    print("connecting to " + peerID);
     if(this.peerID == peerID) {
-      console.log("ERROR, tried to connect to own id");
+      print("ERROR, tried to connect to own id");
       return;
     }
     if(!this.peerID) {
-      console.log("ERROR, not connected to key server yet")
+      print("ERROR, not connected to key server yet")
       return;
     }
     
     let conn = this.peer.connect(peerID);
     conn.on('open', () => {
-      console.log("connection successfull")
+      print("connection successfull")
       this.connection = conn;
       
       if(this.onConnect) {
@@ -61,10 +70,9 @@ class PeerGamepad {
   }
   
   receivedData(data) {
-    console.log(data);
+    print(data);
   }
 }
-
 
 class PeerCommander {
   constructor(opts) {
@@ -83,37 +91,54 @@ class PeerCommander {
     this.data = {};
     
     this.onData = opts.onData;
+    this.onConnected = opts.onConnected;
+    this.onQRCodeCreated = opts.onQRCodeCreated;
+    
+    this.verbose = opts.verbose;
     
     this.peer.on('open', id => { 
-      console.log("connected to key server with id " + id);
+      print("connected to key server with id " + id);
       this.peerID = id; 
+      if(this.onConnected) {
+        this.onConnected(this)
+      }
       this.createQRCode();
     });
     
     this.peer.on('connection', conn => {
       this.connections.push(conn);
       conn.on('open', () => { 
-        console.log("opened data connection with " + conn.peer);
+        print("opened data connection with " + conn.peer);
         conn.on('data', data => this.receivedData(conn.peer, data)); });
     }); 
   }
   
+  print(text) {
+    if(this.verbose) {
+      console.log(text);
+    }
+  }
+  
   createQRCode() {
     if(this.peerID == undefined) {
-      console.log("unable to create qr code, not connected to key server yet");
+      print("unable to create qr code, not connected to key server yet");
       return;
     }
     
     let element = document.getElementById("qrcode");
     if(element == undefined) {
-      console.log("expected element with id 'qrcode' on page, unable to create qrcode")
+      print("expected element with id 'qrcode' on page, unable to create qrcode")
       return;
     }
     
     let textCode = (this.url || "https://1florki.github.io/mobilecontroller/controller/index.html") + "?id=" + this.peerID;
     let code = new QRCode(element, {text: textCode, correctLevel: QRCode.CorrectLevel.L});
-    console.log(code._el.children[1]);
-    console.log(textCode)
+    print(code._el.children[1]);
+    print(textCode)
+    
+    if(this.onQRCodeCreated) {
+      this.onQRCodeCreated(this)
+    }
   }
   
   receivedData(peer, data) {

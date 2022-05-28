@@ -1,5 +1,3 @@
-/*import 'https://cdn.jsdelivr.net/npm/peerjs@0.3.20/dist/peer.min.js';
-*/
 class PeerGamepad {
   constructor(opts) {
     opts = opts || {};

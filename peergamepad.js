@@ -95,6 +95,7 @@ class PeerCommander {
     this.onData = opts.onData;
     this.onConnected = opts.onConnected;
     this.onQRCodeCreated = opts.onQRCodeCreated;
+    this.onGamepadConnected = opts.onGamepadConnected;
     
     this.verbose = opts.verbose;
     
@@ -111,6 +112,9 @@ class PeerCommander {
       this.connections.push(conn);
       conn.on('open', () => { 
         this.log("opened data connection with " + conn.peer);
+        if(this.onGamepadConnected) {
+          this.onGamepadConnected(this, conn)
+        }
         conn.on('data', data => this.receivedData(conn.peer, data)); });
     }); 
   }
@@ -119,6 +123,14 @@ class PeerCommander {
     if(this.verbose) {
       console.log(text);
     }
+  }
+  
+  sendData(connection, data) {
+    connection.send(data)
+  }
+  
+  changeColor(connection, color) {
+    this.sendData(connection, {color: color})
   }
   
   createQRCode() {

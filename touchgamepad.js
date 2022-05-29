@@ -61,7 +61,7 @@ class TouchGamepad {
   }
   
   changeColor(c) {
-    for (let e this.elements) {
+    for (let e of this.elements) {
       e.color = c;
     }
   }

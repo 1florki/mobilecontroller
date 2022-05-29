@@ -59,6 +59,12 @@ class TouchGamepad {
     }
     return data;
   }
+  
+  changeColor(c) {
+    for (let e this.elements) {
+      e.color = c;
+    }
+  }
 }
 
 class TouchElement {

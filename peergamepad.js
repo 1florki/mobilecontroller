@@ -11,6 +11,7 @@ class PeerGamepad {
     this.peer = new Peer();
     
     this.onConnect = opts.onConnect;
+    this.onData = opts.onData;
     
     this.verbose = opts.verbose;
     
@@ -69,6 +70,9 @@ class PeerGamepad {
   
   receivedData(data) {
     this.log(data);
+    if(this.onData) {
+      this.onData(data);
+    }
   }
 }
 

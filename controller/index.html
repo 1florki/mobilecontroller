@@ -12,8 +12,7 @@
      // dimensions of controller
      const sW = 1600;
      const sH = 800;
-     let scl;
-
+     
      let gamepad;
 
      let app = new PIXI.Application({
@@ -36,7 +35,7 @@
      function resize() {
        let w = (window.innerWidth - 20) / window.devicePixelRatio;
        let h = (window.innerHeight - 20) / window.devicePixelRatio;
-       scl = Math.min(w / sW, h / sH);
+       let scl = Math.min(w / sW, h / sH);
 
        //this part resizes the canvas but keeps ratio the same
        app.renderer.resize(w, h);
@@ -44,6 +43,35 @@
        gameContainer.transform.scale.set(scl, scl);
      }
 
+     // try to connect to commander, setup resize event listener and gameloop
+     function setup() {
+       gameContainer = new PIXI.Container();
+       app.stage.addChild(gameContainer);
+
+       resize();
+
+       master = new PeerGamepad({
+         onConnect: onConnected,
+         onData: onData,
+       });
+
+
+       window.addEventListener("resize", () => {
+         clearTimeout(doit);
+         doit = setTimeout(resize, 100);
+       }, true);
+
+       let ticker = PIXI.Ticker.shared;
+       ticker.add(gameloop);
+
+     }
+
+     function onData(d) {
+       if(d.color) {
+         gamepad.changeColor(d.color);
+       }
+     }
+     
      function makeTouch(c) {
        let p = gameContainer.toLocal({
          x: c.clientX / window.devicePixelRatio,
@@ -56,53 +84,61 @@
        };
      }
 
-     function setup() {
-       gameContainer = new PIXI.Container();
-       app.stage.addChild(gameContainer);
-       
-       resize();
-       
-       master = new PeerGamepad({onConnect: () => {
-         gamepad = new TouchGamepad({
-           alwaysSend: true,
-           elements: [{
-             color: 0xff0000,
-             move: false,
-             type: "joystick",
-             size: {
-               x: 800,
-               y: 800
-             },
-             pos: {
-               x: -400,
-               y: 0
-             }
-           }, {
-             pos: {
-               x: 300,
-               y: 200
-             }, size: { x: 300, y: 300 }
-           }, {
-             pos: {
-               x: 600,
-               y: 0
-             }, size: { x: 300, y: 300 }
-           }, {
-             pos: {
-               x: 300,
-               y: -200
-             }, size: { x: 300, y: 300 }
-           }]
-         });
-         
+     // setup gamepad and event listeners when we're connected to commander
+     function onConnected() {
+       gamepad = new TouchGamepad({
+         alwaysSend: true,
+         elements: [{
+           color: 0xff0000,
+           move: false,
+           type: "joystick",
+           size: {
+             x: 800,
+             y: 800
+           },
+           pos: {
+             x: -400,
+             y: 0
+           }
+         }, {
+           pos: {
+             x: 300,
+             y: 200
+           },
+           size: {
+             x: 300,
+             y: 300
+           }
+         }, {
+           pos: {
+             x: 600,
+             y: 0
+           },
+           size: {
+             x: 300,
+             y: 300
+           }
+         }, {
+           pos: {
+             x: 300,
+             y: -200
+           },
+           size: {
+             x: 300,
+             y: 300
+           }
+         }]
+       });
+
        gamepad.addGraphics(gameContainer);
-         
+       
+       // add event listeners, touch and mouse
        window.addEventListener("touchstart", (evt) => {
          for (let c of evt.changedTouches) {
            gamepad.touchStart(makeTouch(c));
          }
        }, false);
-         
+
        window.addEventListener("touchend", (evt) => {
          for (let c of evt.changedTouches) {
            gamepad.touchEnd(makeTouch(c));
@@ -118,37 +154,23 @@
            gamepad.touchMove(makeTouch(c));
          }
        }, false);
-         
-         
-         
+
        window.addEventListener("mousedown", (evt) => {
-          gamepad.touchStart(makeTouch(evt));
+         gamepad.touchStart(makeTouch(evt));
        }, false);
        window.addEventListener("mouseup", (evt) => {
-          gamepad.touchEnd(makeTouch(evt));
+         gamepad.touchEnd(makeTouch(evt));
        }, false);
        window.addEventListener("mousemove", (evt) => {
-          gamepad.touchMove(makeTouch(evt));
+         gamepad.touchMove(makeTouch(evt));
        }, false);
-       }});
-       
-       
-
-       window.addEventListener("resize", () => {
-         clearTimeout(doit);
-         doit = setTimeout(resize, 100);
-       }, true);
-       
-       let ticker = PIXI.Ticker.shared;
-       ticker.add(gameloop);
-       
      }
 
      function gameloop(time) {
        let dt = PIXI.Ticker.shared.elapsedMS;
-       
-       if(gamepad) {
-         if(gamepad.hasChanged() || gamepad.alwaysSend) {
+
+       if (gamepad) {
+         if (gamepad.hasChanged() || gamepad.alwaysSend) {
            master.sendData(gamepad.getData());
          }
        }

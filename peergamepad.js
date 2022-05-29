@@ -15,7 +15,7 @@ class PeerGamepad {
     this.verbose = opts.verbose;
     
     this.peer.on('open', id => { 
-      print("connected to key server with id " + id);
+      this.log("connected to key server with id " + id);
       this.peerID = id;
       if(opts.connect) {
         this.connectTo(opts.connect);
@@ -26,7 +26,7 @@ class PeerGamepad {
     });
   }
   
-  print(text) {
+  log(text) {
     if(this.verbose) {
       console.log(text);
     }
@@ -44,19 +44,19 @@ class PeerGamepad {
   }
   
   connectTo(peerID) {
-    print("connecting to " + peerID);
+    this.log("connecting to " + peerID);
     if(this.peerID == peerID) {
-      print("ERROR, tried to connect to own id");
+      this.log("ERROR, tried to connect to own id");
       return;
     }
     if(!this.peerID) {
-      print("ERROR, not connected to key server yet")
+      this.log("ERROR, not connected to key server yet")
       return;
     }
     
     let conn = this.peer.connect(peerID);
     conn.on('open', () => {
-      print("connection successfull")
+      this.log("connection successfull")
       this.connection = conn;
       
       if(this.onConnect) {
@@ -68,7 +68,7 @@ class PeerGamepad {
   }
   
   receivedData(data) {
-    print(data);
+    this.log(data);
   }
 }
 
@@ -95,7 +95,7 @@ class PeerCommander {
     this.verbose = opts.verbose;
     
     this.peer.on('open', id => { 
-      print("connected to key server with id " + id);
+      this.log("connected to key server with id " + id);
       this.peerID = id; 
       if(this.onConnected) {
         this.onConnected(this)
@@ -106,12 +106,12 @@ class PeerCommander {
     this.peer.on('connection', conn => {
       this.connections.push(conn);
       conn.on('open', () => { 
-        print("opened data connection with " + conn.peer);
+        this.log("opened data connection with " + conn.peer);
         conn.on('data', data => this.receivedData(conn.peer, data)); });
     }); 
   }
   
-  print(text) {
+  log(text) {
     if(this.verbose) {
       console.log(text);
     }
@@ -119,20 +119,20 @@ class PeerCommander {
   
   createQRCode() {
     if(this.peerID == undefined) {
-      print("unable to create qr code, not connected to key server yet");
+      this.log("unable to create qr code, not connected to key server yet");
       return;
     }
     
     let element = document.getElementById("qrcode");
     if(element == undefined) {
-      print("expected element with id 'qrcode' on page, unable to create qrcode")
+      this.log("expected element with id 'qrcode' on page, unable to create qrcode")
       return;
     }
     
     let textCode = (this.url || "https://1florki.github.io/mobilecontroller/controller/index.html") + "?id=" + this.peerID;
     let code = new QRCode(element, {text: textCode, correctLevel: QRCode.CorrectLevel.L});
-    print(code._el.children[1]);
-    print(textCode)
+    this.log(code._el.children[1]);
+    this.log(textCode)
     
     if(this.onQRCodeCreated) {
       this.onQRCodeCreated(this)
